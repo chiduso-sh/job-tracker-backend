@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Job Tracker — Backend (Week 1)
 
 Express + Prisma + PostgreSQL REST API with JWT authentication.
@@ -137,3 +138,7 @@ curl -X POST http://localhost:5000/api/applications \
     "location": "Remote"
   }'
 ```
+=======
+# Job-Tracker
+job tcker
+>>>>>>> 77fb3a0fd459d0a0608c34f0456f382362507542
