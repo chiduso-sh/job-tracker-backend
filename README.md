@@ -1,144 +1,147 @@
-<<<<<<< HEAD
-# Job Tracker — Backend (Week 1)
+# Job Tracker — Backend
 
-Express + Prisma + PostgreSQL REST API with JWT authentication.
+REST API for the Job Tracker application. Built with Node.js, Express, Prisma, and PostgreSQL.
 
-## Project structure
+**Live API → [job-tracker-production-7b5c.up.railway.app](https://job-tracker-production-7b5c.up.railway.app)**
 
-```
-src/
-  index.js                      ← Express app entry point
-  lib/
-    prisma.js                   ← Prisma client singleton
-    schemas.js                  ← Zod validation schemas
-  middleware/
-    auth.js                     ← JWT verification middleware
-    errorHandler.js             ← Global error handler
-  routes/
-    auth.js                     ← /api/auth/*
-    applications.js             ← /api/applications/*
-    misc.js                     ← /api/notes/*, /api/dashboard/*
-  controllers/
-    authController.js
-    applicationsController.js
-    notesController.js
-    dashboardController.js
-prisma/
-  schema.prisma                 ← Database schema
-  seed.js                       ← Test data
-```
+![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=nodedotjs) ![Express](https://img.shields.io/badge/Express-4-000000?logo=express) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169e1?logo=postgresql) ![Prisma](https://img.shields.io/badge/Prisma-5-2d3748?logo=prisma)
 
-## Setup
+---
 
-### 1. Install dependencies
-```bash
-npm install
-```
+## Features
 
-### 2. Set up environment variables
-```bash
-cp .env.example .env
-```
-Edit `.env` with your database URL and a JWT secret (any long random string).
+- **JWT authentication** — register, login, protected routes
+- **Full CRUD** — applications, notes, reminders
+- **Dashboard stats** — counts by status, timeline data, upcoming deadlines
+- **Email reminders** — daily cron job sends deadline alerts via Nodemailer + Gmail
+- **CSV export** — download all applications as a spreadsheet
+- **Zod validation** — all request bodies validated with schemas
+- **Global error handling** — Prisma errors, Zod errors, and 404s handled cleanly
 
-### 3. Create the database
-```bash
-# Make sure PostgreSQL is running, then:
-createdb job_tracker
-```
+---
 
-### 4. Run migrations
-```bash
-npm run db:migrate
-# Enter a migration name when prompted e.g. "init"
-```
+## Tech stack
 
-### 5. Generate Prisma client
-```bash
-npm run db:generate
-```
+| Layer | Technology |
+|-------|-----------|
+| Runtime | Node.js 20 |
+| Framework | Express 4 |
+| Database | PostgreSQL |
+| ORM | Prisma 5 |
+| Auth | JWT + bcrypt |
+| Validation | Zod |
+| Email | Nodemailer |
+| Scheduler | node-cron |
+| Deployment | Railway |
 
-### 6. (Optional) Seed test data
-```bash
-npm run db:seed
-# Creates test@example.com / password123 with 4 sample applications
-```
-
-### 7. Start the dev server
-```bash
-npm run dev
-```
-
-Server runs at `http://localhost:5000`
+---
 
 ## API reference
 
 ### Auth
-| Method | Route | Auth | Body |
-|--------|-------|------|------|
-| POST | /api/auth/register | No | `{ email, password, name? }` |
-| POST | /api/auth/login | No | `{ email, password }` |
-| GET | /api/auth/me | Yes | — |
+| Method | Route | Auth | Description |
+|--------|-------|------|-------------|
+| POST | `/api/auth/register` | No | Create account |
+| POST | `/api/auth/login` | No | Returns JWT |
+| GET | `/api/auth/me` | Yes | Get current user |
 
 ### Applications
-| Method | Route | Auth | Notes |
-|--------|-------|------|-------|
-| GET | /api/applications | Yes | `?status=INTERVIEW&search=google&sort=appliedDate&order=desc` |
-| POST | /api/applications | Yes | See schema below |
-| GET | /api/applications/:id | Yes | Includes notes + reminders |
-| PATCH | /api/applications/:id | Yes | Any subset of fields |
-| DELETE | /api/applications/:id | Yes | — |
+| Method | Route | Auth | Description |
+|--------|-------|------|-------------|
+| GET | `/api/applications` | Yes | List all — supports `?status=&search=&sort=&order=` |
+| POST | `/api/applications` | Yes | Create application |
+| GET | `/api/applications/:id` | Yes | Get single application |
+| PATCH | `/api/applications/:id` | Yes | Update application |
+| DELETE | `/api/applications/:id` | Yes | Delete application |
+| GET | `/api/applications/export` | Yes | Download CSV |
 
 ### Notes
 | Method | Route | Auth |
 |--------|-------|------|
-| GET | /api/applications/:id/notes | Yes |
-| POST | /api/applications/:id/notes | Yes |
-| DELETE | /api/notes/:noteId | Yes |
+| GET | `/api/applications/:id/notes` | Yes |
+| POST | `/api/applications/:id/notes` | Yes |
+| DELETE | `/api/notes/:noteId` | Yes |
 
 ### Dashboard
 | Method | Route | Auth |
 |--------|-------|------|
-| GET | /api/dashboard/stats | Yes |
+| GET | `/api/dashboard/stats` | Yes |
 
-## Application status values
-`APPLIED` | `SCREENING` | `INTERVIEW` | `OFFER` | `REJECTED` | `WITHDRAWN`
-
-## Auth header format
+### Auth header
 ```
-Authorization: Bearer <your-jwt-token>
+Authorization: Bearer <token>
 ```
 
-## Example requests (Postman / curl)
+---
 
-### Register
+## Database schema
+
+```
+User          — id, email, passwordHash, name
+Application   — id, userId, company, role, status, appliedDate, deadline, jobUrl, salary, location
+Note          — id, applicationId, content
+Reminder      — id, applicationId, remindAt, sent
+```
+
+Status enum: `APPLIED | SCREENING | INTERVIEW | OFFER | REJECTED | WITHDRAWN`
+
+---
+
+## Getting started
+
+### Prerequisites
+- Node.js 18+
+- PostgreSQL running locally
+
+### Install and run
+
 ```bash
-curl -X POST http://localhost:5000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email":"you@example.com","password":"password123","name":"Your Name"}'
+# Clone the repo
+git clone https://github.com/chiduso-sh/job-tracker-backend.git
+cd job-tracker-backend
+
+# Install dependencies
+npm install
+
+# Set up environment
+cp .env.example .env
+# Fill in DATABASE_URL, JWT_SECRET, and optionally SMTP details
+
+# Run database migrations
+npm run db:migrate
+
+# (Optional) Seed test data
+npm run db:seed
+# Login: test@example.com / password123
+
+# Start dev server
+npm run dev
 ```
 
-### Login
-```bash
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"you@example.com","password":"password123"}'
+Server runs at [http://localhost:5000](http://localhost:5000)
+
+### Environment variables
+
+```env
+DATABASE_URL="postgresql://postgres:password@localhost:5432/job_tracker"
+JWT_SECRET="your-long-random-secret"
+JWT_EXPIRES_IN="7d"
+PORT=5000
+NODE_ENV=development
+CLIENT_URL="http://localhost:5173"
+
+# Optional — email reminders
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-gmail-app-password
+SMTP_FROM=JobTracker <your-email@gmail.com>
 ```
 
-### Create application (use token from login)
-```bash
-curl -X POST http://localhost:5000/api/applications \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "company": "Stripe",
-    "role": "Backend Engineer",
-    "appliedDate": "2024-01-20",
-    "status": "APPLIED",
-    "location": "Remote"
-  }'
-```
-=======
-# Job-Tracker
-job tcker
->>>>>>> 77fb3a0fd459d0a0608c34f0456f382362507542
+---
+
+## Related
+
+- **Frontend repo** → [github.com/chiduso-sh/job-tracker-frontend](https://github.com/chiduso-sh/job-tracker-frontend)
+- **Live app** → [job-tracker-beryl-nu.vercel.app](https://job-tracker-beryl-nu.vercel.app)
