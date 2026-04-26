@@ -89,5 +89,5 @@ Status enum: `APPLIED | SCREENING | INTERVIEW | OFFER | REJECTED | WITHDRAWN`
 
 ## Related
 
-- **Frontend repo** → [github.com/chiduso-sh/job-tracker-frontend](https://github.com/chiduso-sh/job-tracker-frontend)
+- **Frontend repo** → [github.com/chiduso-sh/Job-Tracker](https://github.com/chiduso-sh/Job-Tracker)
 - **Live app** → [job-tracker-beryl-nu.vercel.app](https://job-tracker-beryl-nu.vercel.app)
